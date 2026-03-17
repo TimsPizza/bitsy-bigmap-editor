@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { EditorCanvas } from "@/components/EditorCanvas";
 import { TilePreview } from "@/components/TilePreview";
@@ -9,7 +9,9 @@ export function EditorPage() {
     "paint" | "avatar" | "sprite" | "item" | "rearrange"
   >("paint");
   const [showClearDialog, setShowClearDialog] = useState(false);
-  const [selectedRoomIndex, setSelectedRoomIndex] = useState<number | null>(null);
+  const [selectedRoomIndex, setSelectedRoomIndex] = useState<number | null>(
+    null,
+  );
   const [selectedSpriteId, setSelectedSpriteId] = useState<string | null>(null);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const sourceText = useEditorStore((state) => state.sourceText);
@@ -23,12 +25,12 @@ export function EditorPage() {
   const tileBehavior = useEditorStore((state) => state.tileBehavior);
   const roomSlots = useEditorStore((state) => state.roomSlots);
   const avatarPlacement = useEditorStore((state) => state.avatarPlacement);
-  const spritePlacements = useEditorStore((state) => state.spritePlacements);
-  const itemPlacements = useEditorStore((state) => state.itemPlacements);
   const currentMaterialId = useEditorStore((state) => state.currentMaterialId);
   const setSourceText = useEditorStore((state) => state.setSourceText);
   const importGameData = useEditorStore((state) => state.importGameData);
-  const setCurrentMaterialId = useEditorStore((state) => state.setCurrentMaterialId);
+  const setCurrentMaterialId = useEditorStore(
+    (state) => state.setCurrentMaterialId,
+  );
   const setTileBlocking = useEditorStore((state) => state.setTileBlocking);
   const resizeWorld = useEditorStore((state) => state.resizeWorld);
   const clearMap = useEditorStore((state) => state.clearMap);
@@ -41,39 +43,13 @@ export function EditorPage() {
     String(Math.max(1, height / roomSize)),
   );
   const [copyLabel, setCopyLabel] = useState("Copy export");
-  const paintableTiles = importedSource?.tiles.filter((tile) => tile.id !== "0") ?? [];
+  const paintableTiles =
+    importedSource?.tiles.filter((tile) => tile.id !== "0") ?? [];
   const avatarDefinition =
     importedSource?.sprites.find((sprite) => sprite.isAvatar) ?? null;
   const spriteDefinitions =
     importedSource?.sprites.filter((sprite) => !sprite.isAvatar) ?? [];
   const itemDefinitions = importedSource?.items ?? [];
-
-  useEffect(() => {
-    if (
-      selectedSpriteId &&
-      spriteDefinitions.some((sprite) => sprite.id === selectedSpriteId)
-    ) {
-      return;
-    }
-
-    setSelectedSpriteId(spriteDefinitions[0]?.id ?? null);
-  }, [selectedSpriteId, spriteDefinitions]);
-
-  useEffect(() => {
-    if (selectedItemId && itemDefinitions.some((item) => item.id === selectedItemId)) {
-      return;
-    }
-
-    setSelectedItemId(itemDefinitions[0]?.id ?? null);
-  }, [itemDefinitions, selectedItemId]);
-
-  useEffect(() => {
-    if (selectedRoomIndex !== null && selectedRoomIndex < roomSlots.length) {
-      return;
-    }
-
-    setSelectedRoomIndex(null);
-  }, [roomSlots.length, selectedRoomIndex]);
 
   const selectedMaterial =
     paintableTiles.find((tile) => tile.id === currentMaterialId) ?? null;
@@ -81,7 +57,8 @@ export function EditorPage() {
     spriteDefinitions.find((sprite) => sprite.id === selectedSpriteId) ?? null;
   const selectedItem =
     itemDefinitions.find((item) => item.id === selectedItemId) ?? null;
-  const selectedRoom = selectedRoomIndex !== null ? roomSlots[selectedRoomIndex] ?? null : null;
+  const selectedRoom =
+    selectedRoomIndex !== null ? (roomSlots[selectedRoomIndex] ?? null) : null;
 
   const avatarMarker = useMemo(() => {
     if (!avatarPlacement) {
@@ -217,7 +194,10 @@ export function EditorPage() {
                     1,
                     Number.parseInt(draftRoomHeight, 10) || 1,
                   );
-                  resizeWorld(nextRoomWidth * roomSize, nextRoomHeight * roomSize);
+                  resizeWorld(
+                    nextRoomWidth * roomSize,
+                    nextRoomHeight * roomSize,
+                  );
                   setDraftRoomWidth(String(nextRoomWidth));
                   setDraftRoomHeight(String(nextRoomHeight));
                   setSelectedRoomIndex(null);
@@ -275,57 +255,13 @@ export function EditorPage() {
                 Item
               </button>
             </div>
-            <div className="stats-grid">
-              <div>
-                <strong>{roomSlots.length}</strong>
-                <span>Room slots</span>
-              </div>
-              <div>
-                <strong>{spritePlacements.length}</strong>
-                <span>Placed sprites</span>
-              </div>
-              <div>
-                <strong>{itemPlacements.length}</strong>
-                <span>Placed items</span>
-              </div>
-              <div>
-                <strong>{avatarPlacement ? "1" : "0"}</strong>
-                <span>Avatar instances</span>
-              </div>
-            </div>
           </div>
 
           <div className="panel stack-gap compact-panel materials-grid-panel">
             <div className="panel-header">
               <h2>Materials & Entities</h2>
             </div>
-            <div className="selected-material">
-              <span className="subtle-label">Current paint brush</span>
-              <div className="selected-material-card">
-                {selectedMaterial ? (
-                  <TilePreview frames={selectedMaterial.frames} size={64} />
-                ) : (
-                  <div className="empty-preview" />
-                )}
-                <div>
-                  <strong>
-                    {selectedMaterial?.name ??
-                      selectedMaterial?.id ??
-                      "Nothing selected"}
-                  </strong>
-                  <p>
-                    {selectedMaterial
-                      ? `Tile ${selectedMaterial.id}`
-                      : "Import data first."}
-                  </p>
-                  {selectedMaterial ? (
-                    <p>
-                      {selectedTileBlocking ? "Blocking tile" : "Passable tile"}
-                    </p>
-                  ) : null}
-                </div>
-              </div>
-            </div>
+
             <div className="material-grid compact-material-grid">
               {paintableTiles.map((tile) => {
                 const label = tile.name ?? tile.id;
@@ -378,16 +314,14 @@ export function EditorPage() {
                 ) : (
                   <div className="empty-preview entity-preview" />
                 )}
-                <div>
-                  <strong>{avatarDefinition?.name ?? "Avatar A"}</strong>
-                  <p>Exactly one avatar is supported, matching Bitsy rules.</p>
-                </div>
               </button>
             </div>
             <div className="entity-section">
               <div className="panel-header">
                 <h3>Sprites</h3>
-                <span className="entity-meta">{spriteDefinitions.length} defs</span>
+                <span className="entity-meta">
+                  {spriteDefinitions.length} defs
+                </span>
               </div>
               <div className="entity-grid">
                 {spriteDefinitions.map((sprite) => (
@@ -402,7 +336,6 @@ export function EditorPage() {
                   >
                     <TilePreview frames={sprite.frames} size={48} />
                     <div>
-                      <strong>{sprite.name ?? sprite.id}</strong>
                       <p>{sprite.id}</p>
                     </div>
                   </button>
@@ -412,7 +345,9 @@ export function EditorPage() {
             <div className="entity-section">
               <div className="panel-header">
                 <h3>Items</h3>
-                <span className="entity-meta">{itemDefinitions.length} defs</span>
+                <span className="entity-meta">
+                  {itemDefinitions.length} defs
+                </span>
               </div>
               <div className="entity-grid">
                 {itemDefinitions.map((item) => (
@@ -427,7 +362,6 @@ export function EditorPage() {
                   >
                     <TilePreview frames={item.frames} size={48} />
                     <div>
-                      <strong>{item.name ?? item.id}</strong>
                       <p>{item.id}</p>
                     </div>
                   </button>
@@ -437,7 +371,7 @@ export function EditorPage() {
           </div>
         </div>
 
-        <div className="panel editor-stage-panel stack-gap">
+        <div className="panel editor-stage-panel stack-gap h-screen! max-h-screen!">
           <div className="panel-header editor-stage-header">
             <div>
               <h2>Map Editor</h2>
@@ -455,7 +389,9 @@ export function EditorPage() {
               </span>
               <span>{modeSummary}</span>
               <span>
-                {selectedRoom ? `Swap source: ${selectedRoom.roomId}` : "No room selected"}
+                {selectedRoom
+                  ? `Swap source: ${selectedRoom.roomId}`
+                  : "No room selected"}
               </span>
             </div>
           </div>
@@ -511,15 +447,15 @@ export function EditorPage() {
       </section>
 
       <dialog
-        className="confirm-dialog"
+        className="confirm-dialog fixed bottom-0 left-0"
         open={showClearDialog}
         onClose={() => setShowClearDialog(false)}
       >
         <div className="confirm-dialog-content">
           <h2>Clear the entire map?</h2>
           <p>
-            This removes all painted tiles plus avatar, sprite, and item placements
-            from the current world grid.
+            This removes all painted tiles plus avatar, sprite, and item
+            placements from the current world grid.
           </p>
           <div className="button-row confirm-dialog-actions">
             <button

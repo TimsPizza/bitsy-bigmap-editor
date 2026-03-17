@@ -109,6 +109,8 @@ button {
   border-radius: 1.25rem;
   background: rgba(255, 251, 243, 0.84);
   box-shadow: 0 12px 32px rgba(62, 44, 16, 0.08);
+  max-height: 320px;
+  overflow-y: scroll;
 }
 
 .compact-panel {
@@ -296,9 +298,11 @@ button {
 }
 
 .entity-grid {
-  display: grid;
-  gap: 0.6rem;
-  max-height: 11rem;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  max-height: 8rem;
   overflow: auto;
 }
 
@@ -306,7 +310,7 @@ button {
   display: flex;
   gap: 0.75rem;
   align-items: center;
-  width: 100%;
+  width: 18%;
   padding: 0.7rem 0.8rem;
   border: 1px solid rgba(38, 32, 22, 0.14);
   border-radius: 1rem;
